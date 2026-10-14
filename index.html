@@ -343,3 +343,59 @@
                 touchOffsetX = clickGridX - shape[0].x;
                 touchOffsetY = clickGridY - shape[0].y;
             }
+        }
+
+        function handlePointerMove(e) {
+            if (!isDragging) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const newGridX = toGridX(clientX - rect.left) - touchOffsetX;
+            const newGridY = toGridY(clientY - rect.top) - touchOffsetY;
+
+            const dx = newGridX - shape[0].x;
+            const dy = newGridY - shape[0].y;
+
+            if (dx !== 0 || dy !== 0) {
+                shape = shape.map(pt => ({
+                    x: Math.max(-gridSize, Math.min(gridSize, pt.x + dx)),
+                    y: Math.max(-gridSize, Math.min(gridSize, pt.y + dy))
+                }));
+                draw();
+            }
+        }
+
+        function handlePointerUp() {
+            isDragging = false;
+        }
+
+        function resetPosition() {
+            shape = [
+                { x: 1, y: 1 },
+                { x: 4, y: 1 },
+                { x: 2, y: 4 }
+            ];
+            vecAInput.value = 3;
+            vecBInput.value = 2;
+            draw();
+        }
+
+        // Event Listeners
+        vecAInput.addEventListener('input', draw);
+        vecBInput.addEventListener('input', draw);
+
+        canvas.addEventListener('mousedown', handlePointerDown);
+        canvas.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+
+        canvas.addEventListener('touchstart', handlePointerDown, { passive: true });
+        canvas.addEventListener('touchmove', handlePointerMove, { passive: true });
+        window.addEventListener('touchend', handlePointerUp);
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>
